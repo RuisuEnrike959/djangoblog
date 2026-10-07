@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Blog Posts</title>
+</head>
+
+<body>
+
+    <h1>Blog Posts</h1>
+
+    <a href="{% url 'blog:post_create' %}">
+        Create New Post
+    </a>
+
+    <hr>
+
+    {% for post in posts %}
+
+        <article>
+
+            <h2>{{ post.title }}</h2>
+
+            <p>
+                {{ post.content|truncatewords:30 }}
+            </p>
+
+            <a href="{% url 'blog:post_detail' post.slug %}">
+                View
+            </a>
+
+            <a href="{% url 'blog:post_update' post.slug %}">
+                Edit
+            </a>
+
+            <a href="{% url 'blog:post_delete' post.slug %}">
+                Delete
+            </a>
+
+        </article>
+
+        <hr>
+
+    {% empty %}
+
+        <p>No posts available.</p>
+
+    {% endfor %}
+
+</body>
+</html>
