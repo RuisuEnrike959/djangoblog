@@ -1,0 +1,45 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}Register - My Blog in Niigata{% endblock %}
+
+{% block content %}
+
+<section class="posts-section">
+
+    <div class="container">
+
+        <div class="section-header">
+            <div>
+                <span class="section-label">ACCOUNT</span>
+                <h2>Create Account</h2>
+            </div>
+        </div>
+
+        <div class="post-card">
+            <div class="post-card-body">
+
+                <form method="post">
+                    {% csrf_token %}
+
+                    {{ form.as_p }}
+
+                    <button type="submit">
+                        Register
+                    </button>
+                </form>
+
+                <p>
+                    Already have an account?
+                    <a href="{% url 'login' %}">
+                        Login
+                    </a>
+                </p>
+
+            </div>
+        </div>
+
+    </div>
+
+</section>
+
+{% endblock %}

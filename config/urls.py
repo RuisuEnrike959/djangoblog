@@ -14,26 +14,59 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from django.urls import include, path
 
-from blog import views
+
+# Custom 403 Forbidden page
+handler403 = 'blog.views.custom_403'
 
 
 urlpatterns = [
-    path('', views.home, name='home'),
+    path('admin/', admin.site.urls),
 
     path('__debug__/', include('debug_toolbar.urls')),
 
-    path('about/', views.about, name='about'),
+    path('accounts/', include('django.contrib.auth.urls')),
 
-    path('admin/', admin.site.urls),
+    path('', include('blog.urls')),
 
-    path('contact/', views.contact, name='contact'),
+    # Password reset
+    path(
+        'password_reset/',
+        auth_views.PasswordResetView.as_view(
+            template_name='registration/password_reset_form.html'
+        ),
+        name='password_reset'
+    ),
 
-    path('blog/', include('blog.urls')),
+    path(
+        'password_reset/done/',
+        auth_views.PasswordResetDoneView.as_view(
+            template_name='registration/password_reset_done.html'
+        ),
+        name='password_reset_done'
+    ),
+
+    path(
+        'reset/<uidb64>/<token>/',
+        auth_views.PasswordResetConfirmView.as_view(
+            template_name='registration/password_reset_confirm.html'
+        ),
+        name='password_reset_confirm'
+    ),
+
+    path(
+        'reset/done/',
+        auth_views.PasswordResetCompleteView.as_view(
+            template_name='registration/password_reset_complete.html'
+        ),
+        name='password_reset_complete'
+    ),
 ]
 
 

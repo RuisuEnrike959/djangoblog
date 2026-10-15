@@ -1,180 +1,130 @@
-{% load static %}
+{% extends 'blog/base.html' %}
 
-{% load static %}
+{% block title %}My Blog in Niigata{% endblock %}
 
-<!DOCTYPE html>
-<html lang="en">
+{% block content %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<section class="hero">
+    <div class="container">
 
-    <title>My Blog in Niigata</title>
+        <p class="hero-label">MY BLOG IN NIIGATA</p>
 
-    <link rel="stylesheet" href="{% static 'blog/style.css' %}">
-</head>
+        <h1>
+            Ideas, stories<br>
+            experiences and recommendations.
+        </h1>
 
-<body>
+        <p class="hero-description">
+            A place to share knowledge, discoveries,
+            experiences and interesting things in Niigata city.
+        </p>
 
+    </div>
+</section>
 
-    <header class="header">
-        <div class="container header-content">
+<main class="container posts-section">
 
-            <a href="{% url 'blog:home' %}" class="logo">
-                My Blog
-            </a>
+    <div class="section-title">
+        <span>ARTICLES</span>
+        <h2>Recent Posts</h2>
+    </div>
 
-            <nav>
-                <a href="{% url 'blog:home' %}">Home</a>
-                <a href="{% url 'blog:about' %}">About</a>
-                <a href="{% url 'blog:contact' %}">Contact</a>
-            </nav>
+    <div class="posts-grid">
 
-        </div>
-    </header>
+        {% for post in posts %}
 
+        <article class="post-card">
 
-    <section class="hero">
-        <div class="container">
+            {% if post.cover_image %}
+            <div class="post-card-image">
+                <img
+                    src="{{ post.cover_image.url }}"
+                    alt="{{ post.title }}"
+                >
+            </div>
+            {% endif %}
 
-            <p class="hero-label">MY BLOG IN NIIGATA</p>
+            <div class="post-card-body">
 
-            <h1>
-                Ideas, stories<br>
-                experiences and recommendations.
-            </h1>
-
-            <p class="hero-description">
-                A place to share knowledge, discoveries,
-                experiences and interesting things in Niigata city.
-            </p>
-
-        </div>
-    </section>
-
-
-    <main class="container posts-section">
-
-        <div class="section-title">
-            <span>ARTICLES</span>
-            <h2>Recent Posts</h2>
-        </div>
-
-
-        <div class="posts-grid">
-
-            {% for post in posts %}
-
-            <article class="post-card">
-
-                {% if post.cover_image %}
-                    <div class="post-card-image">
-                        <img
-                            src="{{ post.cover_image.url }}"
-                            alt="{{ post.title }}"
-                        >
-                    </div>
-                {% endif %}
-
-
-                <div class="post-card-body">
-
-                    <div class="post-date">
-                        {{ post.created_at|date:"F d, Y" }}
-                    </div>
-
-                    <h2>
-                        {{ post.title }}
-                    </h2>
-
-                    <p>
-                        {{ post.content|truncatewords:30 }}
-                    </p>
-
-                    <a
-                        href="{% url 'blog:post_detail' post.slug %}"
-                        class="read-more"
-                    >
-                        Read article →
-                    </a>
-
+                <div class="post-date">
+                    {{ post.created_at|date:"F d, Y" }}
                 </div>
 
-            </article>
+                <h2>{{ post.title }}</h2>
 
-            {% empty %}
+                <p>
+                    {{ post.content|truncatewords:30 }}
+                </p>
 
-            <div class="empty">
-                <h2>No published posts yet.</h2>
-                <p>Check back soon for new articles.</p>
+                <a
+                    href="{% url 'blog:post_detail' post.slug %}"
+                    class="read-more"
+                >
+                    Read article →
+                </a>
+
             </div>
 
-            {% endfor %}
+        </article>
 
+        {% empty %}
+
+        <div class="empty">
+            <h2>No published posts yet.</h2>
+            <p>Check back soon for new articles.</p>
         </div>
 
+        {% endfor %}
 
-        <!-- PAGINATION -->
+    </div>
 
-        {% if page_obj.paginator.num_pages > 1 %}
+    {% if page_obj and page_obj.paginator.num_pages > 1 %}
 
-        <div class="pagination">
+    <div class="pagination">
 
-            {% if page_obj.has_previous %}
-                <a
-                    href="?page={{ page_obj.previous_page_number }}"
-                    class="pagination-link"
-                >
-                    ← Previous
-                </a>
-            {% endif %}
-
-
-            {% for num in page_obj.paginator.page_range %}
-
-                {% if page_obj.number == num %}
-
-                    <span class="pagination-current">
-                        {{ num }}
-                    </span>
-
-                {% else %}
-
-                    <a
-                        href="?page={{ num }}"
-                        class="pagination-link"
-                    >
-                        {{ num }}
-                    </a>
-
-                {% endif %}
-
-            {% endfor %}
-
-
-            {% if page_obj.has_next %}
-                <a
-                    href="?page={{ page_obj.next_page_number }}"
-                    class="pagination-link"
-                >
-                    Next →
-                </a>
-            {% endif %}
-
-        </div>
-
+        {% if page_obj.has_previous %}
+        <a
+            href="?page={{ page_obj.previous_page_number }}"
+            class="pagination-link"
+        >
+            ← Previous
+        </a>
         {% endif %}
 
-    </main>
+        {% for num in page_obj.paginator.page_range %}
 
+            {% if page_obj.number == num %}
 
-    <footer class="footer">
+            <span class="pagination-current">
+                {{ num }}
+            </span>
 
-        <div class="container">
-            <p>© 2026 My Blog. All rights reserved.</p>
-        </div>
+            {% else %}
 
-    </footer>
+            <a
+                href="?page={{ num }}"
+                class="pagination-link"
+            >
+                {{ num }}
+            </a>
 
-</body>
-</html>
+            {% endif %}
+
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <a
+            href="?page={{ page_obj.next_page_number }}"
+            class="pagination-link"
+        >
+            Next →
+        </a>
+        {% endif %}
+
+    </div>
+
+    {% endif %}
+
+</main>
+
+{% endblock %}

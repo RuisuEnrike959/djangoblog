@@ -1,19 +1,66 @@
+
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
+from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import DetailView
+from django.views.generic.edit import CreateView
+from django.urls import reverse_lazy
+from django.db.models import Q
+from django.contrib import messages
 
+from .forms import PostForm, registrationform
 from .models import Post
-from .forms import PostForm
+from django.shortcuts import render
 
 
+# Create a post (class-based view)
+class PostCreateView(LoginRequiredMixin, CreateView):
+    model = Post
+    form_class = PostForm
+    template_name = 'blog/post_form.html'
+    login_url = '/accounts/login/'
+
+    def form_valid(self, form):
+        form.instance.author = self.request.user
+
+        messages.success(
+            self.request,
+            'Post created successfully.'
+        )
+
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse_lazy(
+            'blog:post_detail',
+            kwargs={'slug': self.object.slug}
+        )
+
+
+# Register a user
+class RegistrationView(CreateView):
+    form_class = registrationform
+    template_name = 'registration/register.html'
+    success_url = '/'
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        login(self.request, self.object)
+        return response
+
+
+# Home page
 def home(request):
     posts = Post.objects.filter(
         status='published'
     ).order_by('-created_at')
 
     paginator = Paginator(posts, 6)
-
-    page_number = request.GET.get('page')
-    page_obj = paginator.get_page(page_number)
+    page_obj = paginator.get_page(
+        request.GET.get('page')
+    )
 
     return render(
         request,
@@ -25,6 +72,7 @@ def home(request):
     )
 
 
+# About page
 def about(request):
     return render(
         request,
@@ -33,6 +81,7 @@ def about(request):
     )
 
 
+# Contact page
 def contact(request):
     return render(
         request,
@@ -41,7 +90,7 @@ def contact(request):
     )
 
 
-# List all published posts
+# List published posts
 def post_list(request):
     posts = Post.objects.filter(
         status='published'
@@ -54,7 +103,28 @@ def post_list(request):
     )
 
 
-# Display a single post
+# Post detail page
+class PostdetailView(DetailView):
+    model = Post
+    template_name = 'blog/post_detail.html'
+    context_object_name = 'post'
+    slug_url_kwarg = 'slug'
+
+    def get_queryset(self):
+        published = Post.objects.filter(
+            status='published'
+        )
+
+        if self.request.user.is_authenticated:
+            return Post.objects.filter(
+                Q(status='published') |
+                Q(author=self.request.user)
+            )
+
+        return published
+
+
+# Display a published post
 def post_detail(request, slug):
     post = get_object_or_404(
         Post,
@@ -69,7 +139,8 @@ def post_detail(request, slug):
     )
 
 
-# Create a new post
+# Create a post (function-based view)
+@login_required(login_url='/accounts/login/')
 def post_create(request):
     if request.method == 'POST':
         form = PostForm(
@@ -78,8 +149,20 @@ def post_create(request):
         )
 
         if form.is_valid():
-            form.save()
-            return redirect('blog:post_list')
+            post = form.save(commit=False)
+            post.author = request.user
+            post.save()
+            form.save_m2m()
+
+            messages.success(
+                request,
+                'Post created successfully.'
+            )
+
+            return redirect(
+                'blog:post_detail',
+                slug=post.slug
+            )
     else:
         form = PostForm()
 
@@ -90,11 +173,13 @@ def post_create(request):
     )
 
 
-# Update an existing post
+# Update a post
+@login_required(login_url='/accounts/login/')
 def post_update(request, slug):
     post = get_object_or_404(
         Post,
-        slug=slug
+        slug=slug,
+        author=request.user
     )
 
     if request.method == 'POST':
@@ -105,15 +190,19 @@ def post_update(request, slug):
         )
 
         if form.is_valid():
-            form.save()
+            post = form.save()
+
+            messages.success(
+                request,
+                'Post updated successfully.'
+            )
+
             return redirect(
                 'blog:post_detail',
                 slug=post.slug
             )
     else:
-        form = PostForm(
-            instance=post
-        )
+        form = PostForm(instance=post)
 
     return render(
         request,
@@ -125,15 +214,23 @@ def post_update(request, slug):
     )
 
 
-# Delete an existing post
+# Delete a post
+@login_required(login_url='/accounts/login/')
 def post_delete(request, slug):
     post = get_object_or_404(
         Post,
-        slug=slug
+        slug=slug,
+        author=request.user
     )
 
     if request.method == 'POST':
         post.delete()
+
+        messages.success(
+            request,
+            'Post deleted successfully.'
+        )
+
         return redirect('blog:post_list')
 
     return render(
@@ -141,3 +238,18 @@ def post_delete(request, slug):
         'blog/post_confirm_delete.html',
         {'post': post}
     )
+
+
+# Custom 403 Forbidden page
+def custom_403(request, exception=None):
+    return render(
+        request,
+        'blog/403.html',
+        status=403
+    )
+
+# Test page for 403 error
+from django.shortcuts import render
+
+def test_403(request):
+    return render(request, 'blog/403.html', status=403)

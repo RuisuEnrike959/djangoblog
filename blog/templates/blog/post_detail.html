@@ -1,33 +1,68 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{ post.title }}</title>
-</head>
+{% extends 'blog/base.html' %}
 
-<body>
+{% block title %}{{ post.title }} - My Blog in Niigata{% endblock %}
 
-    <h1>{{ post.title }}</h1>
+{% block content %}
 
-    <p>
-        {{ post.content }}
-    </p>
+<section class="posts-section">
 
-    <hr>
+    <div class="container">
 
-    <a href="{% url 'blog:post_update' post.slug %}">
-        Edit
+        <article class="post-card">
+
+            {% if post.cover_image %}
+                <div class="post-card-image">
+                    <img
+                        src="{{ post.cover_image.url }}"
+                        alt="{{ post.title }}"
+                    >
+                </div>
+            {% endif %}
+
+            <div class="post-card-body">
+
+                <div class="post-date">
+                    {{ post.created_at|date:"F d, Y" }}
+                </div>
+
+                {% if post.author %}
+                    <p class="post-author">
+                        Author: {{ post.author.username }}
+                    </p>
+                {% endif %}
+
+                <h1>
+                    {{ post.title }}
+                </h1>
+
+                <div class="post-content">
+                    {{ post.content|linebreaks }}
+                </div>
+
+<div class="post-actions">
+
+    {% if user.is_authenticated and user == post.author %}
+        <a href="{% url 'blog:post_update' slug=post.slug %}" class="read-more">
+            Edit
+        </a>
+
+        <a href="{% url 'blog:post_delete' slug=post.slug %}" class="read-more">
+            Delete
+        </a>
+    {% endif %}
+
+    <a href="{% url 'blog:home' %}" class="read-more">
+        ← Back to Home
     </a>
 
-    <a href="{% url 'blog:post_delete' post.slug %}">
-        Delete
-    </a>
+</div>
 
-    <br><br>
+            </div>
 
-    <a href="{% url 'blog:home' %}">
-        Back to Home
-    </a>
+        </article>
 
-</body>
-</html>
+    </div>
+
+</section>
+
+{% endblock %}

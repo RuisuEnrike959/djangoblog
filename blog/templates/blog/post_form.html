@@ -1,45 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>
-        {% if post %}
-            Edit Post
-        {% else %}
-            Create Post
-        {% endif %}
-    </title>
-</head>
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="UTF-8"> <title> {% if post %} Edit Post {% else %} Create Post {% endif %} </title> </head>
 
 <body>
 
-    {% if post %}
-        <h1>Edit Post</h1>
-    {% else %}
-        <h1>Create New Post</h1>
-    {% endif %}
+{% if post %} <h1>Edit Post</h1> {% else %} <h1>Create New Post</h1> {% endif %}
 
-    <form method="POST">
+<form method="POST" enctype="multipart/form-data">
 
-        {% csrf_token %}
+{% csrf_token %}
 
-        {{ form.as_p }}
+{{ form.as_p }}
 
-        <button type="submit">
-            {% if post %}
-                Update Post
-            {% else %}
-                Create Post
-            {% endif %}
-        </button>
+<button type="submit"> {% if post %} Update Post {% else %} Create Post {% endif %} </button>
 
-    </form>
+</form>
 
-    <br>
+<br>
 
-    <a href="{% url 'blog:post_list' %}">
-        Back to Posts
-    </a>
+<a href="{% url 'blog:post_list' %}"> Back to Posts </a>
 
-</body>
-</html>
+</body> </html>
