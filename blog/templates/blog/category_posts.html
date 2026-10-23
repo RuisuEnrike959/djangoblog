@@ -1,0 +1,55 @@
+
+{% extends 'blog/base.html' %}
+
+{% block title %}{{ category.name }} - My Blog in Niigata{% endblock %}
+
+{% block content %}
+<main class="container posts-section">
+
+    <div class="section-title">
+        <span>CATEGORY</span>
+        <h1>{{ category.name }}</h1>
+    </div>
+
+    <div class="posts-grid">
+        {% for post in posts %}
+        <article class="post-card">
+
+            {% if post.cover_image %}
+            <div class="post-card-image">
+                <img src="{{ post.cover_image.url }}"
+                     alt="{{ post.title }}">
+            </div>
+            {% endif %}
+
+            <div class="post-card-body">
+                <div class="post-date">
+                    {{ post.created_at|date:"F d, Y" }}
+                </div>
+
+                <h2>{{ post.title }}</h2>
+                <p>{{ post.content|truncatewords:30 }}</p>
+
+                <a href="{% url 'blog:post_detail' post.slug %}"
+                   class="read-more">
+                    Read article →
+                </a>
+            </div>
+
+        </article>
+        {% empty %}
+        <div class="empty">
+            <h2>No published posts in this category yet.</h2>
+            <p>Check back soon for new articles.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <p>
+        <a href="{% url 'blog:home' %}" class="read-more">
+            ← Back to Home
+        </a>
+    </p>
+
+</main>
+{% endblock %}

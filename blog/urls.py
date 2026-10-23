@@ -11,8 +11,14 @@ app_name = 'blog'
 urlpatterns = [
     path('', views.home, name='home'),
     path('test-403/', views.test_403, name='test_403'),
-
+    path('500-demo/', views.error_500_demo, name='error_500_demo'),
     path('about/', views.about, name='about'),
+
+    path(
+    'categories/<int:category_id>/',
+    views.category_posts,
+    name='category_posts'
+),
 
     path('contact/', views.contact, name='contact'),
 

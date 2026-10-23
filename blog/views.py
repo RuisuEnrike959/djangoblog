@@ -11,7 +11,7 @@ from django.db.models import Q
 from django.contrib import messages
 
 from .forms import PostForm, registrationform
-from .models import Post
+from .models import Post, Category, Tag
 from django.shortcuts import render
 
 
@@ -51,6 +51,7 @@ class RegistrationView(CreateView):
         return response
 
 
+
 # Home page
 def home(request):
     posts = Post.objects.filter(
@@ -62,14 +63,18 @@ def home(request):
         request.GET.get('page')
     )
 
+    categories = Category.objects.all().order_by('name')
+
     return render(
         request,
         'blog/home.html',
         {
             'posts': page_obj,
             'page_obj': page_obj,
+            'categories': categories,
         }
     )
+
 
 
 # About page
@@ -100,6 +105,28 @@ def post_list(request):
         request,
         'blog/post_list.html',
         {'posts': posts}
+    )
+
+
+# Display posts by category
+def category_posts(request, category_id):
+    category = get_object_or_404(
+        Category,
+        id=category_id
+    )
+
+    posts = Post.objects.filter(
+        category=category,
+        status='published'
+    ).order_by('-created_at')
+
+    return render(
+        request,
+        'blog/category_posts.html',
+        {
+            'category': category,
+            'posts': posts,
+        }
     )
 
 
@@ -253,3 +280,7 @@ from django.shortcuts import render
 
 def test_403(request):
     return render(request, 'blog/403.html', status=403)
+def custom_404(request, exception):
+    return render(request, '404.html', status=404)
+def error_500_demo(request):
+    return render(request, '500.html', status=200)

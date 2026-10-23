@@ -1,0 +1,19 @@
+{% extends 'blog/base.html' %}
+
+{% block title %}404 - Page Not Found | My Blog in Niigata{% endblock %}
+
+{% block content %}
+<section class="error-page">
+    <div class="container">
+        <p class="error-code">404</p>
+        <h1>Page Not Found</h1>
+        <p class="error-message">
+            Sorry, the page you are looking for doesn't exist
+            or may have been moved.
+        </p>
+        <a href="{% url 'blog:home' %}" class="error-home-button">
+            Return to Home
+        </a>
+    </div>
+</section>
+{% endblock %}

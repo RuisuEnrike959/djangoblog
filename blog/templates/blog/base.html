@@ -9,8 +9,7 @@
 
     <title>{% block title %}My Blog in Niigata{% endblock %}</title>
 
-    <link rel="stylesheet" href="{% static 'blog/style.css' %}">
-</head>
+    <link rel="stylesheet" href="{% static 'blog/style.css' %}?v=2">
 
 <body>
 
@@ -18,7 +17,7 @@
     <div class="container header-content">
 
         <a href="{% url 'blog:home' %}" class="logo">
-            My Blog
+            Inside Niigata
         </a>
 
         <nav>

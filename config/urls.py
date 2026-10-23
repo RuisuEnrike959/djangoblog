@@ -24,6 +24,7 @@ from django.urls import include, path
 
 # Custom 403 Forbidden page
 handler403 = 'blog.views.custom_403'
+handler404 = 'blog.views.custom_404'
 
 
 urlpatterns = [
